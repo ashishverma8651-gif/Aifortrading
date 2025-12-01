@@ -1,0 +1,54 @@
+// netlify/functions/sendAlert.js
+
+export async function handler(event, context) {
+  try {
+    const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+    if (!TOKEN || !CHAT_ID) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing Telegram env variables" })
+      };
+    }
+
+    // Message from query or body
+    let msg = "Alert from AIFORTRADING bot!";
+    if (event.queryStringParameters?.msg) {
+      msg = event.queryStringParameters.msg;
+    } else if (event.body) {
+      try {
+        const b = JSON.parse(event.body);
+        if (b.message) msg = b.message;
+      } catch(e){}
+    }
+
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+    const body = {
+      chat_id: CHAT_ID,
+      text: msg,
+      parse_mode: "HTML"
+    };
+
+    const result = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await result.json();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        ok: true,
+        telegram_response: data
+      })
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
+  }
+}
