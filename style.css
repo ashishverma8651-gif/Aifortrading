@@ -1,0 +1,13 @@
+body {
+  background: #111;
+  color: white;
+  font-family: Arial;
+  padding: 20px;
+}
+
+#dataBox {
+  padding: 15px;
+  background: #222;
+  border-radius: 10px;
+  margin-top: 20px;
+}
